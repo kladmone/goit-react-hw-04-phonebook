@@ -5,8 +5,17 @@ import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
 
 export const App = () => {
-  const [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useState(() => {
+    const stringifiedContacts = localStorage.getItem('contacts');
+    const parsedContacts = JSON.parse(stringifiedContacts);
+    return parsedContacts || [];
+  });
   const [filter, setFilter] = useState('');
+
+  useEffect(() => {
+    const stringifiedContacts = JSON.stringify(contacts);
+    localStorage.setItem('contacts', stringifiedContacts);
+  }, [contacts]);
 
   const handleAddContact = formData => {
     const hasDuplicates = contacts.some(
@@ -33,17 +42,6 @@ export const App = () => {
       prevContacts.filter(contact => contact.id !== contactId)
     );
   };
-
-  useEffect(() => {
-    const stringifiedContacts = localStorage.getItem('contacts');
-    const contacts = JSON.parse(stringifiedContacts) || [];
-    setContacts(contacts);
-  }, []);
-
-  useEffect(() => {
-    const stringifiedContacts = JSON.stringify(contacts);
-    localStorage.setItem('contacts', stringifiedContacts);
-  }, [contacts]);
 
   const filteredContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(filter.toLowerCase())
